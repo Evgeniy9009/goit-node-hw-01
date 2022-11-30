@@ -6,35 +6,44 @@ const {v4} = require("uuid")
 const contactsPath = path.join(__dirname, "contacts.json");
 console.log(__dirname)
 
+const getAll = async(contacts) => {
+    const data = await fs.readFile(contactsPath);
+    return JSON.parse(data);
+}
+
+const updateContacts = async (contacts) => {
+    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));;
+}
+
 
 const listContacts = async() => {
-    const data = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(data);
+    
+    const contacts = await getAll()
     return contacts
 }
 
 async function getContactById(contactId) {
-    const data = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(data);
+    const normalizeId = String(contactId)
+    const contacts = await getAll()
 
-    const result = contacts.find(item => item.id === contactId);
+    const result = contacts.find(item => item.id === normalizeId);
     if (!result) {
-        throw new Error(`Contact with id ${contactId} not found`)
+        throw new Error(`Contact with id ${normalizeId} not found`)
     }
     return result
 }
 
 async function removeContact(contactId) {
-    const data = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(data);
+    const contacts = await getAll()
+    const normalizeId = String(contactId)
 
-    const idx = contacts.findIndex(item => item.id ===contactId)
+    const idx = contacts.findIndex(item => item.id ===normalizeId)
     if (idx === -1) {
         console.log('no contact')
         return null
     }
     const [removeContact] = contacts.splice(idx, 1)
-    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2))
+    await updateContacts(contacts);
     return removeContact
 
     // const newContacts = contacts.filter((_, index) => index !== idx)
@@ -45,20 +54,30 @@ async function removeContact(contactId) {
 
 
 async function addContact({name, email, phone}) {
-    const data = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(data);
+    const contacts = await getAll();
 
-    const newContact = { name, email, phone, id: v4() }
-    contacts.push(newContact)
-    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2))
-    
-    // const double = contacts.filter((item) => item[phone] === newContact[phone])
-    // console.log(double);
-    // if (double) {
-    //     console.log('double', double)
-    //     return
-    // }
-    return newContact
+    const newContact = {
+        name,
+        email,
+        phone,
+        id: v4()
+    };
+    contacts.push(newContact);
+    await updateContacts(contacts);
+    return newContact;
+}
+
+async function updateById(id, data) {
+    const normalizeId = String(id)
+    const contacts = await getAll()
+
+    const idx = contacts.findIndex(item => item.id === normalizeId);
+    if (idx === -1) {
+        return null;
+    }
+    contacts[idx] = { id, ...data };
+    await updateContacts(contacts);
+    return contacts[idx];
 }
 
 
@@ -67,7 +86,8 @@ module.exports = {
     listContacts,
     getContactById,
     removeContact,
-    addContact
+    addContact,
+    updateById
 }
 
 
