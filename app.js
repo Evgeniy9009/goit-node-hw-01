@@ -39,7 +39,7 @@ const invokeAction = async ({ action, id, name, email, phone }) => {
             console.log(updateContact);
             break;
         default:
-            await console.warn("\x1B[31m Unknown action type!");
+            console.warn("\x1B[31m Unknown action type!");
             // console.log('Unknown action')
     }
 }
@@ -62,6 +62,6 @@ invokeAction(argv);
 //     email: 'evgeniy111.gmail.com',
 //     phone: '(098) 1111-177'})
 
-// node app.js --action get --id 5
+// node app.js --action get --id 3
 // node app.js --action add --name Mango --email mango@gmail.com --phone 322-22-22
 // node app.js --action remove --id=10

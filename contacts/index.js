@@ -6,13 +6,22 @@ const {v4} = require("uuid")
 const contactsPath = path.join(__dirname, "contacts.json");
 console.log(__dirname)
 
-const getAll = async(contacts) => {
-    const data = await fs.readFile(contactsPath);
-    return JSON.parse(data);
+const getAll = async () => {
+    try {
+        const data = await fs.readFile(contactsPath);
+        return JSON.parse(data);
+    } catch (error) {
+        console.log(error.message)
+    }
+    
 }
 
 const updateContacts = async (contacts) => {
-    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));;
+    try {
+        await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));;
+    } catch (error) {
+        console.log(error.massage)
+    }
 }
 
 
